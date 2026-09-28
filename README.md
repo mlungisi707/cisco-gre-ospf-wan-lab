@@ -1,5 +1,6 @@
 # Enterprise WAN Architecture: GRE Tunneling over OSPF
-# [Network Topology Diagram](topolgy.png)
+# [Network Topology Diagram](topology.png)
+
 ## Project Overview
 This project demonstrates the implementation and verification of a **GRE (Generic Routing Encapsulation) Tunnel** overlay across a simulated physical WAN serial link. The network simulates a production environment connecting a corporate **Headquarters (HQ)** and a remote **Branch Office**. Dynamic path discovery and routing table propagation are achieved by running **OSPFv2 (Open Shortest Path First)** directly over the virtual point-to-point tunnel interface.
 
