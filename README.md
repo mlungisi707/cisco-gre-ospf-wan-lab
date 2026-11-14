@@ -154,4 +154,4 @@ When explaining this architecture during technical recruitment reviews, the diag
 1. **Layer 1 & 2 Verification:** Run `show interface Serial0` to verify the hardware and line protocols are up/up. If down, troubleshoot physical cabling, clocking configurations, or public carrier outages.
 2. **Layer 3 Tunnel Overlay Validation:** Execute `show interface Tunnel0`. Verify that the tunnel source and destination metrics match exactly on both peers. Ensure that firewall ACLs (Access Control Lists) on the public interface are not dropping IP Protocol 47 (GRE traffic).
 3. **Control Plane Diagnosis:** If the virtual tunnel interface is up but end-to-end user communication fails, analyze the control plane via `show ip ospf neighbor`. If stuck in a state other than FULL, check for mismatched OSPF areas, subnet mask conflicts on the tunnel interface, or hello/dead interval discrepancies.
-4.
+  
