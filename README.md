@@ -1,6 +1,6 @@
 # Enterprise WAN Architecture: GRE Tunneling over OSPF
 
-![Network Topology Diagram](screenshots/01-gre-wan-ospf-topology.png)
+![Network Topology Diagram](images/01-gre-wan-ospf-topology.png)
 
 ## Project Overview
 This project demonstrates the implementation and verification of a **GRE (Generic Routing Encapsulation) Tunnel** overlay across a simulated physical WAN serial link. The network simulates a production environment connecting a corporate **Headquarters (HQ)** and a remote **Branch Office**. Dynamic path discovery and routing table propagation are achieved by running **OSPFv2 (Open Shortest Path First)** directly over the virtual point-to-point tunnel interface.
@@ -128,7 +128,7 @@ Execute a layer 3 ICMP check across the physical link to validate underlying pro
 Branch-Router# ping 203.0.113.1
 ! Expected Result: Success rate is 100 percent (5/5)
 ```
-![Branch-Router pings HQ WAN address](screenshots/03-branch-wan-ping.png)
+![Branch-Router pings HQ WAN address](images/03-branch-wan-ping.png)
 
 * **Result:** 5/5 replies, round-trip min/avg/max = 1/22/45 ms. The underlay is healthy, which is the only requirement GRE has before the tunnel can come up.
 
@@ -137,7 +137,7 @@ Confirm the tunnel interface is up and bound to the correct source and destinati
 ```cisco
 HQ-Router# show interface Tunnel0
 ```
-![HQ-Router Tunnel0 status](screenshots/02-hq-tunnel-status.png)
+![HQ-Router Tunnel0 status](images/02-hq-tunnel-status.png)
 
 * **Result:** `Tunnel0 is up, line protocol is up`, tunnel source 203.0.113.1 (Serial0), destination 203.0.113.2, tunnel protocol/transport **GRE/IP**. The tunnel transport MTU is 1476 bytes, which leaves room for the GRE and outer IP headers (24 bytes) on a 1500 byte path. Keepalives are not set.
 
@@ -146,7 +146,7 @@ Confirm that the dynamic routing protocol has established a stable state across 
 ```cisco
 Branch-Router# show ip ospf neighbor
 ```
-![Branch-Router OSPF neighbor](screenshots/04-branch-ospf-neighbor.png)
+![Branch-Router OSPF neighbor](images/04-branch-ospf-neighbor.png)
 
 * **Analysis Criteria:** The neighbor state must transition to **FULL**. This indicates complete link-state database synchronization has occurred through the GRE tunnel layer.
 * **Result:** Neighbor ID 203.0.113.1 (HQ-Router) is `FULL/ -` on **Tunnel0** via 10.0.0.1. Priority 0 and no DR/BDR role is expected, because the tunnel is treated as a point-to-point network.
@@ -156,7 +156,7 @@ Verify that remote enterprise LAN prefixes are actively populated in the routing
 ```cisco
 HQ-Router# show ip route
 ```
-![HQ-Router routing table](screenshots/05-hq-routing-table.png)
+![HQ-Router routing table](images/05-hq-routing-table.png)
 
 * **Analysis Criteria:** The table must display a prefix designated with the identifier **O** (OSPF), pointing explicitly out of the logical interface `Tunnel0`.
 * **Result:** `O    192.168.20.0/24 [110/1001] via 10.0.0.2, 00:10:55, Tunnel0`. The metric of 1001 is the tunnel's default 100 Kbit/s bandwidth (cost 1000) plus 1 for the Branch LAN interface. The connected routes for 10.0.0.0/30 (Tunnel0), 192.168.10.0/24 (Vlan1) and 203.0.113.0/30 (Serial0) are also present.
@@ -167,14 +167,14 @@ Initiate an ICMP flow directly from host workstation **HQ-PC1** to host workstat
 C:\> ping 192.168.20.10
 ! Expected Result: Packets: Sent = 4, Received = 4, Lost = 0 (0% loss)
 ```
-![HQ-PC1 pings Branch-PC1](screenshots/06-pc-end-to-end-ping.png)
+![HQ-PC1 pings Branch-PC1](images/06-pc-end-to-end-ping.png)
 
 * **Result:** 4/4 replies, 0% loss. The reply TTL of 126 shows the packet crossed two routers (the PC starts at 128), confirming the traffic is routed through HQ-Router and Branch-Router.
 
 ### 6. GRE Encapsulation Analysis (Packet Tracer Simulation Mode)
 Simulation mode shows the tunnel at packet level. The capture below is taken at HQ-Router for a reply travelling from the Branch back to HQ-PC2.
 
-![GRE PDU encapsulation at HQ-Router](screenshots/07-gre-pdu-encapsulation.png)
+![GRE PDU encapsulation at HQ-Router](images/07-gre-pdu-encapsulation.png)
 
 * **In Layers (WAN side):** The frame arrives on `Serial0` as an HDLC frame carrying the outer delivery header, source 203.0.113.2 to destination 203.0.113.1. This is the GRE packet crossing the WAN.
 * **Out Layers (LAN side):** After the outer header is removed, the original packet leaves `FastEthernet1` in a new Ethernet II frame, with the inner header 192.168.20.10 to 192.168.10.20 (the real host addresses).
